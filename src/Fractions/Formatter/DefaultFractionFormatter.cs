@@ -42,7 +42,8 @@ namespace Fractions.Formatter {
                         sb.Append(FormatRemainder(fraction));
                         break;
                     case 'm':
-                        sb.Append(FormatMixed(fraction));
+                    case '-':
+                        sb.Append(FormatMixed(fraction, character == '-' ? '-' : ' '));
                         break;
                     default:
                         sb.Append(character);
@@ -52,7 +53,7 @@ namespace Fractions.Formatter {
             return sb.ToString();
         }
 
-        private static string FormatMixed(Fraction fraction) {
+        private static string FormatMixed(Fraction fraction, char separator) {
             if (BigInteger.Abs(fraction.Numerator) < BigInteger.Abs(fraction.Denominator)) {
                 return FormatGeneral(fraction);
             }
@@ -67,7 +68,7 @@ namespace Fractions.Formatter {
                 ? integer.ToString(CultureInfo.InvariantCulture)
                 : string.Concat(
                     integer.ToString(CultureInfo.InvariantCulture),
-                    " ",
+                    separator,
                     FormatGeneral(remainder));
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using Fractions.Extensions;
@@ -100,9 +101,26 @@ namespace Fractions {
             }
 
             if (components.Length >= 2) {
-                var numeratorString = components[0];
-                var denominatorString = components[1];
+                var separators = new List<char>() { ' ' };
+                if
+                (
+                    (numberStyles & NumberStyles.AllowLeadingSign) != NumberStyles.AllowLeadingSign ||
+                    (numberStyles & NumberStyles.AllowTrailingSign) != NumberStyles.AllowTrailingSign
+                )
+                {
+                    separators.Add( '-' );
+                }
 
+
+                var numeratorString = components[0];
+                var wholeNumber = Fraction.Zero;
+                var numeratorComponents = numeratorString.Split(separators.ToArray());
+                if (numeratorComponents.Length > 1) {
+                    numeratorString = numeratorComponents[1];
+                    TryParseSingleNumber(numeratorComponents[0], numberStyles, formatProvider, out wholeNumber);
+                }
+
+                var denominatorString = components[1];
                 var withoutDecimalpoint = numberStyles & ~NumberStyles.AllowDecimalPoint;
                 if (!BigInteger.TryParse(
                         value: numeratorString,
@@ -116,7 +134,7 @@ namespace Fractions {
                         result: out BigInteger denominator)) {
                     return CannotParse(out fraction);
                 }
-                fraction = new Fraction(numerator, denominator, normalize);
+                fraction = new Fraction(numerator, denominator, normalize) + wholeNumber;
                 return true;
             }
 
